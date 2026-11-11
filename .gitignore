@@ -1,0 +1,21 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+**/node_modules/
+**/.next/
+**/.gradle/
+**/build/
+**/uploads/
+**/coverage/
+*.tsbuildinfo
+.local/
+
+# Private TLS keys, certificate bundles and local secret exports
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Local API credential document
+/OPENAI API.pdf

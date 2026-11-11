@@ -1,0 +1,63 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "merchant": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "purchaseDate": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Actual transaction/purchase date normalized to YYYY-MM-DD, or null if unreadable or unresolved. Read numeric and written-month formats. A contemporary receipt showing 09/22/26 means 2026-09-22; two-digit years need not be discarded. Follow the date-order and century rules in the instructions; never return raw slash-form dates or unrelated expiry dates."
+    },
+    "totalAmount": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "currency": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "category": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "BUSINESS",
+        "MEDICAL",
+        "CHARITY",
+        "HOME",
+        "EDUCATION",
+        "TRANSPORTATION",
+        "MEALS",
+        "OFFICE",
+        "OTHER",
+        null
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "merchant",
+    "purchaseDate",
+    "totalAmount",
+    "currency",
+    "category",
+    "description"
+  ]
+}

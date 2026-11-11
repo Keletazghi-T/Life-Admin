@@ -1,0 +1,35 @@
+# HTTPS at the trusted public reverse proxy; cookies remain host-only.
+server:
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  servlet:
+    session:
+      cookie:
+        secure: true
+        http-only: true
+        same-site: ${COOKIE_SAME_SITE:strict}
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+  mvc:
+    log-request-details: false
+app:
+  frontend-url: ${FRONTEND_URL}
+  storage-directory: ${DOCUMENT_STORAGE_LOCAL_PATH}
+  development:
+    mock-analysis-enabled: false
+debug: false
+trace: false
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: "OFF"
+    org.hibernate.SQL: "OFF"
+    org.hibernate.orm.jdbc.bind: "OFF"

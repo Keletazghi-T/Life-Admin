@@ -1,0 +1,702 @@
+{
+  "info": {
+    "name": "Life Admin \u00b7 Milestones 1\u201316",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "documentId",
+      "value": ""
+    },
+    {
+      "key": "taskId",
+      "value": ""
+    },
+    {
+      "key": "receiptId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Public minimal health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/health"
+      }
+    },
+    {
+      "name": "Get CSRF token (before each mutation)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/auth/csrf"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) pm.collectionVariables.set(\"csrfToken\", pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Register (logs in immediately)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"{{accountEmail}}\", \"password\": \"{{accountPassword}}\"}"
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"{{accountEmail}}\", \"password\": \"{{accountPassword}}\"}"
+        }
+      }
+    },
+    {
+      "name": "Current user",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/auth/me"
+      }
+    },
+    {
+      "name": "List my documents (login required)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/documents"
+      }
+    },
+    {
+      "name": "2. Upload PDF (select file)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/documents/upload",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": ""
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Created\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"documentId\", pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Get uploaded metadata",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/documents/{{documentId}}"
+      }
+    },
+    {
+      "name": "4. Analyze document",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/documents/{{documentId}}/analyze"
+      }
+    },
+    {
+      "name": "5. Read saved analysis",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/documents/{{documentId}}/analysis"
+      }
+    },
+    {
+      "name": "6. Load DEVELOPMENT mock (dev profile + flag required; TestRecord.pdf only)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/development/documents/{{documentId}}/mock-analysis"
+      }
+    },
+    {
+      "name": "7. Generate action plan (safe to repeat)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/documents/{{documentId}}/tasks/generate"
+      }
+    },
+    {
+      "name": "8. List document tasks",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/documents/{{documentId}}/tasks"
+      }
+    },
+    {
+      "name": "9. Create task",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/documents/{{documentId}}/tasks",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Review the original document\",\n  \"description\": null,\n  \"dueDate\": null\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Created\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"taskId\", pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Edit task",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/tasks/{{taskId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Review the original document carefully\",\n  \"description\": \"Check dates and required information.\",\n  \"dueDate\": null\n}"
+        }
+      }
+    },
+    {
+      "name": "11. Complete task",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/tasks/{{taskId}}/status",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"COMPLETED\"\n}"
+        }
+      }
+    },
+    {
+      "name": "12. Reopen task",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/tasks/{{taskId}}/status",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"TODO\"\n}"
+        }
+      }
+    },
+    {
+      "name": "13. Delete task",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/tasks/{{taskId}}"
+      }
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/logout"
+      }
+    },
+    {
+      "name": "Search and sort my documents",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/documents?search=notice&sort=name-asc&page=0",
+        "header": []
+      }
+    },
+    {
+      "name": "View original PDF",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/documents/{{documentId}}/file",
+        "header": []
+      }
+    },
+    {
+      "name": "Download original PDF",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/documents/{{documentId}}/file?download=true",
+        "header": []
+      }
+    },
+    {
+      "name": "Rename display name",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/documents/{{documentId}}",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"displayName\": \"Housing Assistance Notice\"}"
+        }
+      }
+    },
+    {
+      "name": "Delete document permanently (destructive)",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/documents/{{documentId}}",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Change password (logs out all sessions)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/account/password",
+        "description": "Fetch a fresh CSRF token before sending. Keep passwords in a private local environment. Account deletion requires explicitly setting deleteConfirmation to DELETE and permanently removes the currently signed-in account.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currentPassword\": \"{{accountPassword}}\",\n  \"newPassword\": \"{{newAccountPassword}}\",\n  \"confirmNewPassword\": \"{{newAccountPassword}}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Delete account permanently (disposable test account only)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/account",
+        "description": "Fetch a fresh CSRF token before sending. Keep passwords in a private local environment. Account deletion requires explicitly setting deleteConfirmation to DELETE and permanently removes the currently signed-in account.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currentPassword\": \"{{accountPassword}}\",\n  \"confirmation\": \"{{deleteConfirmation}}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Dashboard summary (current account)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/dashboard",
+        "description": "Exact account-scoped counts and lists capped at five. Upcoming deadlines are after today through 30 days from the UTC date returned by the server."
+      }
+    },
+    {
+      "name": "List receipts",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/receipts?year=2026&sort=newest",
+        "header": []
+      }
+    },
+    {
+      "name": "Receipt totals",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/receipts/summary?year=2026",
+        "header": []
+      }
+    },
+    {
+      "name": "Receipt details",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/receipts/{{receiptId}}",
+        "header": []
+      }
+    },
+    {
+      "name": "View receipt",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/receipts/{{receiptId}}/content",
+        "header": []
+      }
+    },
+    {
+      "name": "Download receipt",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/receipts/{{receiptId}}/content?download=true",
+        "header": []
+      }
+    },
+    {
+      "name": "Delete receipt permanently",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/receipts/{{receiptId}}",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Add receipt (choose file)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/receipts",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": []
+            },
+            {
+              "key": "metadata",
+              "type": "text",
+              "contentType": "application/json",
+              "value": "{\"merchant\": \"Sample store\", \"purchaseDate\": \"2026-09-01\", \"amount\": \"12.34\", \"currency\": \"USD\", \"category\": \"OFFICE\", \"description\": \"\", \"taxRelevant\": false, \"notes\": \"\"}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Edit receipt",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/api/receipts/{{receiptId}}",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"merchant\": \"Sample store\", \"purchaseDate\": \"2026-09-01\", \"amount\": \"12.34\", \"currency\": \"USD\", \"category\": \"OFFICE\", \"description\": \"\", \"taxRelevant\": false, \"notes\": \"\"}"
+        }
+      }
+    },
+    {
+      "name": "Tax year overview",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/receipts/tax?year=2026",
+        "header": []
+      }
+    },
+    {
+      "name": "Tax year receipt records",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/receipts/tax/records?year=2026&filter=all&sort=date-desc&page=0",
+        "header": []
+      }
+    },
+    {
+      "name": "Tax receipts needing review",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/receipts/tax/records?year=2026&filter=needs-review",
+        "header": []
+      }
+    },
+    {
+      "name": "Export all year receipts CSV",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/receipts/tax/export?year=2026&scope=all",
+        "header": []
+      }
+    },
+    {
+      "name": "Export potentially relevant receipts CSV",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/receipts/tax/export?year=2026&scope=tax-relevant",
+        "header": []
+      }
+    },
+    {
+      "name": "Receipt extraction and review (Milestone 16)",
+      "item": [
+        {
+          "name": "Upload receipt for review (file only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/receipts"
+          }
+        },
+        {
+          "name": "Receipt extraction capabilities",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/receipts/extraction-capabilities"
+          }
+        },
+        {
+          "name": "Extract owned unreviewed receipt (PDF local / image AI)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/receipts/{{receiptId}}/extract",
+            "description": "File-only upload already attempts extraction. This explicitly repeats it for an owned unreviewed receipt. JPEG/PNG uses the actual OpenAI image request when the backend key is configured and may incur cost; do not repeatedly invoke during a one-call live test. PDFs stay local. Missing image configuration or provider failure preserves the file for manual review. Reviewed receipts reject extraction with 409."
+          }
+        },
+        {
+          "name": "Read receipt suggestions",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/receipts/{{receiptId}}/extraction"
+          }
+        },
+        {
+          "name": "Review and save receipt",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/receipts/{{receiptId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchant\": \"Corrected merchant\",\n  \"purchaseDate\": \"2025-09-20\",\n  \"amount\": \"6.72\",\n  \"currency\": \"USD\",\n  \"category\": \"MEALS\",\n  \"description\": \"User-confirmed purchase\",\n  \"taxRelevant\": false,\n  \"notes\": \"\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unified dashboard and Inbox (Milestone 14)",
+      "item": [
+        {
+          "name": "Unified dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/dashboard"
+          }
+        },
+        {
+          "name": "Inbox: all, most urgent first",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/inbox?filter=all&sort=urgent&page=0"
+          }
+        },
+        {
+          "name": "Inbox: receipts",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/inbox?filter=receipts&sort=urgent&page=0"
+          }
+        },
+        {
+          "name": "Inbox: deadlines",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/inbox?filter=deadlines&sort=urgent&page=0"
+          }
+        },
+        {
+          "name": "Inbox: newest tasks",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/inbox?filter=tasks&sort=newest&page=0"
+          }
+        }
+      ]
+    }
+  ]
+}

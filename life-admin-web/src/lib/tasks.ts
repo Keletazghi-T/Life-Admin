@@ -1,0 +1,12 @@
+import { request } from "./documents";
+export type TaskStatus = "TODO" | "COMPLETED";
+export type TaskInput = { title: string; description: string | null; dueDate: string | null };
+export type Task = TaskInput & { id: string; documentId: string; status: TaskStatus; developmentMock: boolean; createdAt: string; updatedAt: string };
+const json = (method: string, body: unknown): RequestInit => ({ method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+export const listTasks = (documentId: string) => request<Task[]>(`/api/documents/${encodeURIComponent(documentId)}/tasks`);
+export const createTask = (documentId: string, input: TaskInput) => request<Task>(`/api/documents/${encodeURIComponent(documentId)}/tasks`, json("POST", input));
+export const updateTask = (id: string, input: TaskInput) => request<Task>(`/api/tasks/${encodeURIComponent(id)}`, json("PUT", input));
+export const changeTaskStatus = (id: string, status: TaskStatus) => request<Task>(`/api/tasks/${encodeURIComponent(id)}/status`, json("PATCH", { status }));
+export const deleteTask = (id: string) => request<void>(`/api/tasks/${encodeURIComponent(id)}`, { method: "DELETE" });
+export type ActionSelection = { steps: number[]; dates: number[]; includeDeadline: boolean; confirmedAt: string };
+export const generateTasks = (documentId: string, selection?: ActionSelection) => request<Task[]>(`/api/documents/${encodeURIComponent(documentId)}/tasks/generate`, selection ? json("POST", selection) : { method: "POST" });

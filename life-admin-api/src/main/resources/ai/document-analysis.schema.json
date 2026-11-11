@@ -1,0 +1,112 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "documentType": {
+      "description": "Short human-readable classification grounded in the headings, purpose, and contents. Prefer the most specific supported type, or a supported broader type. Examples: Criminal History Record Check Receipt, Utility Bill, Insurance Notice, Lease Agreement, Government Letter, Invoice. Examples are not a fixed list or default. Use Unknown only when the content genuinely cannot be classified; missing dates or unclear actions alone do not justify Unknown. Do not infer legal status or results.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8000
+    },
+    "actionRequired": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Null when action is unclear."
+    },
+    "deadline": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "An explicitly stated, unambiguous deadline in YYYY-MM-DD format, otherwise null."
+    },
+    "requiredDocuments": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      }
+    },
+    "nextSteps": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      }
+    },
+    "meaning": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Plain-English explanation, based only on document evidence. Unknown is null."
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Short exact excerpts from the document, not explanations or reasoning."
+    },
+    "importantDates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "YYYY-MM-DD only if explicit and unambiguous; otherwise null."
+          },
+          "evidence": {
+            "type": "string",
+            "description": "Exact document excerpt supporting this date."
+          }
+        },
+        "required": [
+          "label",
+          "date",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "documentType",
+    "summary",
+    "actionRequired",
+    "deadline",
+    "requiredDocuments",
+    "nextSteps",
+    "warnings",
+    "meaning",
+    "evidence",
+    "importantDates"
+  ]
+}

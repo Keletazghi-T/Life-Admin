@@ -1,0 +1,49 @@
+server:
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${PORT:8080}
+  servlet:
+    session:
+      timeout: 8h
+      tracking-modes: cookie
+      cookie:
+        path: /
+        http-only: true
+        same-site: ${COOKIE_SAME_SITE:strict}
+        secure: ${COOKIE_SECURE:false}
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/life_admin}
+    username: ${DATABASE_USERNAME:life_admin}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  storage-type: ${DOCUMENT_STORAGE_TYPE:local}
+  storage-directory: ${DOCUMENT_STORAGE_LOCAL_PATH:${STORAGE_DIRECTORY:./uploads}}
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      model: ${OPENAI_MODEL:gpt-4o-mini}
+      receipt-model: ${OPENAI_RECEIPT_MODEL:gpt-5.4-mini}
+  development:
+    mock-analysis-enabled: ${LIFE_ADMIN_DEV_MOCKS:false}
+
+# Never serialize exception details in the container fallback error response.
+
+# Keep document bodies out of framework debug logs, including when Boot debug is enabled.
+logging:
+  level:
+    org.springframework.web: INFO
+    org.springframework.http: INFO
